@@ -1,0 +1,41 @@
+name: Update pluginmaster
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Hourly: a plugin release cut in this org shows up in pluginmaster.json within the hour.
+    - cron: "23 * * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-pluginmaster
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4 (v4.4.0)
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5 (v5.6.0)
+        with:
+          python-version: "3.x"
+      - name: Regenerate pluginmaster.json
+        run: python scripts/update_pluginmaster.py
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit pluginmaster.json
+        # The script exits non-zero after writing when some repos failed; still publish the others.
+        if: ${{ !cancelled() }}
+        run: |
+          if git diff --quiet -- pluginmaster.json; then
+            echo "pluginmaster.json unchanged"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add pluginmaster.json
+          git commit -m "Update pluginmaster.json"
+          git push
