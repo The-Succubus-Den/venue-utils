@@ -13,5 +13,3 @@ In game open /xlsettings, Experimental, Custom Plugin Repositories, paste `https
 ## How it updates
 
 `pluginmaster.json` is rebuilt every hour by `.github/workflows/update-pluginmaster.yml` from the latest `latest.zip` release of each repo in `repos.json` (all under `github.com/The-Succubus-Den`). Run that workflow by hand to pick up a release straight away.
-
-StripDeathroll14 here is a mirror of [priestkos/StripDeathroll14](https://github.com/priestkos/StripDeathroll14): each push there is mirrored to the org repo, which republishes the same `latest.zip` under the same tag.
